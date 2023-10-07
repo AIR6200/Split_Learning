@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package SLFL; //包名称
+
+//服务定义-SL训练
+service Training {
+  rpc SL(SL_Client) returns (SL_Server){}
+}
+
+//服务定义-SL验证
+service Validation {
+  rpc val(SL_Client_Eval) returns (ValidationResponse){}
+}
+
+
+//定义请求信息
+message SL_Client{
+  bytes label = 1;
+  bytes client_model = 2;
+}
+
+message SL_Client_Eval{
+  bytes label_eval = 1;
+  bytes client_model = 2;
+  bytes server_config_eval = 3;
+}
+
+//定义响应信息
+message SL_Server{
+  bytes server_model = 1;
+}
+
+message ValidationResponse{
+  bytes loss = 1;
+  bytes correct = 2;
+}
