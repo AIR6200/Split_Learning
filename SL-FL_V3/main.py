@@ -5,6 +5,8 @@ from client_handdle import *
 from fed_server import *
 import models, datasets
 
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Split Learning & Federated Learning')
@@ -32,6 +34,7 @@ if __name__ == '__main__':
     print("\n\n")
 
 
+
     for e in range(conf["global_epochs"]):
         print("global epochs:", e)
         #初始化模型参数序列，用于后续的全局模型更新和聚合
@@ -48,6 +51,7 @@ if __name__ == '__main__':
 
         #选择客户端开始训练
         for c in candidates:
+        #def local_train(c):
             #客户端计算准确率和损失值
             acc, loss = c.model_eval(fedserver.client_global_model,server)
             print("clientID: %d,acc: %f, loss: %f\n" % (c.client_id, acc, loss))
@@ -60,8 +64,11 @@ if __name__ == '__main__':
             diff_server = server.local_train_server_model(server.global_model)
             for name, params in server.global_model.state_dict().items():
                 server_weight_accumulator[name].add_(diff_server[name])
-
-
+        
+        #引入并发执行
+        #with ThreadPoolExecutor(max_workers=len(candidates)) as executor:
+        #    executor.map(local_train, candidates)
+        
         #更新client端的全局模型（FedServer来做比较合适）
         fedserver.client_model_aggregate(client_weight_accumulator)
 

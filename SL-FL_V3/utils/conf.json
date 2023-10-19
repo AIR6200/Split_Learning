@@ -1,36 +1,36 @@
 {
     "server_address" : {
-		"training_address" : "127.0.0.1:10000",
-		"validation_address": "127.0.0.1:11000"
-	},
+      "training_address" : "127.0.0.1:10000",
+      "validation_address": "127.0.0.1:11000"
+   },
 
-	"client_model_pth": "./outputs/client_model.pth",
+   "client_model_pth": "./outputs/client_model.pth",
 
-	"server_model_pth": "./outputs/server_model.pth",
+   "server_model_pth": "./outputs/server_model.pth",
 
-	"client_model_name" : "ResNet18ClientNetwork",
+   "client_model_name" : "LeNetClientNetwork",
 
-	"server_model_name" : "ResNet18ServerNetwork",
+   "server_model_name" : "LeNetServerNetwork",
 
-	"no_models" : 2,
+   "no_models" : 10,
 
-	"iid":true,
+   "iid":true,
 
-	"GPU":true,
+   "GPU":false,
 
-	"type" : "cifar",
-	
-	"global_epochs" : 1,
-	
-	"local_epochs" : 1,
-	
-	"k" : 2,
-	
-	"batch_size" : 100,
-	
-	"lr" : 0.001,
+   "type" : "FMNIST",
+   
+   "global_epochs" : 10,
+   
+   "local_epochs" : 1,
+   
+   "k" : 10,
+   
+   "batch_size" : 32,
+   
+   "lr" : 0.001,
 
-	"momentum" : 0.1,
+   "momentum" : 0.1,
 
-	"lambda" : 0.1
+   "lambda" : 0.1
 }

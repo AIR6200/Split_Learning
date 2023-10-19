@@ -23,14 +23,43 @@ class Client(object):
         self.global_model = models.get_model(self.conf["client_model_name"])
         self.client_id = id
 
-        #这个表示个更新后的client模型
         self.train_dataset = train_dataset
-        #self.eval_dataset = eval_dataset
 
-        #训练集生成
-        all_range = list(range(len(self.train_dataset)))
-        data_len = int(len(self.train_dataset) / self.conf['no_models'])
-        train_indices = all_range[id * data_len: (id + 1) * data_len]
+        train_indices=[]
+
+        self.device = torch.device('cuda' if torch.cuda.is_available() & self.conf['GPU'] else 'cpu')
+
+        #TODO:modify the closure
+        def get_non_IID_data(dataset,num_users,id):
+            """
+            Sample non-I.I.D client data from dataset
+            :param dataset:
+            :param num_users:
+            :return:
+            """ 
+            idxs = np.arange(len(dataset))
+
+            labels = dataset.targets
+
+            # idxs and labels
+            idxs_labels = np.vstack((idxs, labels))
+
+            #sort labels
+            idxs_labels = idxs_labels[:,idxs_labels[1,:].argsort()]
+            idxs = idxs_labels[0,:]
+            data_len = int(len(dataset)/ num_users)
+            return idxs[id*data_len:(id+1)*data_len]
+
+        #训练集生成:IID分布
+        if self.conf["iid"]==True:
+            #all_range = list(range(int(len(self.train_dataset)/10)))
+            #data_len = int(int(len(self.train_dataset)/ self.conf['no_models'])/10)
+            all_range = list(range(len(self.train_dataset)))
+            data_len = int(len(self.train_dataset)/ self.conf['no_models'])
+
+            train_indices = all_range[id * data_len: (id + 1) * data_len]
+        else:
+            train_indices=get_non_IID_data(train_dataset,self.conf['no_models'],id)
         self.train_loader = torch.utils.data.DataLoader(self.train_dataset, batch_size=conf["batch_size"],sampler=torch.utils.data.sampler.SubsetRandomSampler(train_indices))
 
 
@@ -40,7 +69,6 @@ class Client(object):
         #train_indices_eval = all_range_eval[id * data_len_eval: (id + 1) * data_len_eval]
         self.eval_loader = torch.utils.data.DataLoader(eval_dataset, batch_size=self.conf["batch_size"], shuffle=True)
         #self.eval_loader = torch.utils.data.DataLoader(eval_dataset, batch_size=self.conf["batch_size"], sampler=torch.utils.data.sampler.SubsetRandomSampler(train_indices_eval))
-
 
     def local_train(self, model):
         """
@@ -63,7 +91,8 @@ class Client(object):
 
             for batch_id, batch in enumerate(self.train_loader):
                 data, target = batch
-
+                data=data.to(self.device)
+                target=target.to(self.device)
                 optimizer.zero_grad()
                 output = self.local_model(data)
 
@@ -91,9 +120,12 @@ class Client(object):
         dataset_size = 0
         for batch_id, batch in enumerate(self.eval_loader):
             data, target = batch
+            data=data.to(self.device)
+            target=target.to(self.device)
             dataset_size += data.size()[0]
 
             output = self.global_model(data)
+
             #给server做后面的内容, loss和pred来自server
             response = client_communication.SL_validation_run(self.conf['server_address']["validation_address"],target,output,server_config)
             loss = pickle.loads(response.loss)

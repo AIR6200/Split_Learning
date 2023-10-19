@@ -41,9 +41,12 @@ def SL_validation_run(serverIP,labels,split_layer_tensor,server_config):
     """
 
     #定义一个频道，地址和服务端一致
+
+    #定义一个频道，地址和服务端一致
     conn = grpc.insecure_channel(serverIP)
     #定义客户端
     client = pb2_grpc.ValidationStub(channel=conn)
+
     response = client.val(pb2.SL_Client_Eval(
         label_eval=pickle.dumps(labels),
         client_model=pickle.dumps(split_layer_tensor),
@@ -51,5 +54,4 @@ def SL_validation_run(serverIP,labels,split_layer_tensor,server_config):
     ))
 
     return response
-
 

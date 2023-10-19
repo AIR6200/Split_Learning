@@ -32,7 +32,10 @@ class SLFL_Validation(pb2_grpc.ValidationServicer):
 
 def run():
     grpc_server = grpc.server(
-        futures.ThreadPoolExecutor(max_workers=64)
+        futures.ThreadPoolExecutor(max_workers=64),
+        options=[
+        ('grpc.max_send_message_length', 100 * 1024 * 1024),
+        ('grpc.max_receive_message_length', 100 * 1024 * 1024)]
     )
     # 注册服务
     pb2_grpc.add_TrainingServicer_to_server(SLFL_Training(),grpc_server)
