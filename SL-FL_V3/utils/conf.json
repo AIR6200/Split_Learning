@@ -8,21 +8,25 @@
 
 	"server_model_pth": "./outputs/server_model.pth",
 
-	"client_model_name" : "LeNetClientNetwork",
+	"client_model_name" : "ResNet18ClientNetwork",
 
-	"server_model_name" : "LeNetServerNetwork",
+	"server_model_name" : "ResNet18ServerNetwork",
 
-	"no_models" : 10,
+	"no_models" : 2,
 
-	"type" : "FMNIST",
+	"iid":true,
+
+	"GPU":true,
+
+	"type" : "cifar",
 	
-	"global_epochs" : 20,
+	"global_epochs" : 1,
 	
 	"local_epochs" : 1,
 	
-	"k" : 10,
+	"k" : 2,
 	
-	"batch_size" : 32,
+	"batch_size" : 100,
 	
 	"lr" : 0.001,
 
