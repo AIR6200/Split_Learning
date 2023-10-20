@@ -6,6 +6,7 @@ from fed_server import *
 import models, datasets
 
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from threading import Lock as lock
 
 
 if __name__ == '__main__':
@@ -58,12 +59,16 @@ if __name__ == '__main__':
 
             diff_client = c.local_train(fedserver.client_global_model)
             for name, params in fedserver.client_global_model.state_dict().items():
+                #lock.acquire()
                 client_weight_accumulator[name].add_(diff_client[name])
+                #lock.release()
 
             #服务端完成训练后，把最新的server.local_model进行更新聚合
             diff_server = server.local_train_server_model(server.global_model)
             for name, params in server.global_model.state_dict().items():
+                #lock.acquire()
                 server_weight_accumulator[name].add_(diff_server[name])
+                #lock.release()
         
         #引入并发执行
         #with ThreadPoolExecutor(max_workers=len(candidates)) as executor:
