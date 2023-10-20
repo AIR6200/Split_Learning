@@ -50,8 +50,8 @@ if __name__ == '__main__':
             server_weight_accumulator[name] = torch.zeros_like(params) #生成和括号内变量维度维度一致的全是零的内容
 
         #选择客户端开始训练
-        #for c in candidates:
-        def local_train(c):
+        for c in candidates:
+        #def local_train(c):
             #客户端计算准确率和损失值
             acc, loss = c.model_eval(fedserver.client_global_model,server)
             print("clientID: %d,acc: %f, loss: %f\n" % (c.client_id, acc, loss))
@@ -66,8 +66,8 @@ if __name__ == '__main__':
                 server_weight_accumulator[name].add_(diff_server[name])
         
         #引入并发执行
-        with ThreadPoolExecutor(max_workers=len(candidates)) as executor:
-            executor.map(local_train, candidates)
+        #with ThreadPoolExecutor(max_workers=len(candidates)) as executor:
+        #    executor.map(local_train, candidates)
         
         #更新client端的全局模型（FedServer来做比较合适）
         fedserver.client_model_aggregate(client_weight_accumulator)
